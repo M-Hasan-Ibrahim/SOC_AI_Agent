@@ -1,5 +1,5 @@
 # app/models.py
-from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean, ForeignKey, JSON
 import datetime
 from .database import Base
 
@@ -18,3 +18,14 @@ class RawAlert(Base):
     rules_triggered = Column(ARRAY(String), nullable=True)
     trigger_reason = Column(String, nullable=True)
     analyzed = Column(Boolean, default=False)
+
+class Enrichment(Base):
+    __tablename__ = "enrichments"
+    id = Column(Integer, primary_key=True, index=True)
+    alert_id = Column(Integer, ForeignKey("raw_alerts.id"))
+    enrichment_type = Column(String)
+    indicator_type = Column(String)
+    indicator_value = Column(String)
+    enrichment_result = Column(JSON)
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+    
