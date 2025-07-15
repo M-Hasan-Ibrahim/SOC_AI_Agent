@@ -1,0 +1,67 @@
+[
+  {
+    "timestamp": "2025-07-15T09:15:00",
+    "source_ip": "10.1.1.12",
+    "destination_ip": "192.168.1.101",
+    "source_port": 45211,
+    "destination_port": 22,
+    "source_hostname": "internal-pc01",
+    "destination_hostname": "prod-ssh-server",
+    "alert_type": "Brute Force SSH",
+    "severity": "high",
+    "rules_triggered": ["ssh_brute_force", "multiple_failed_logins"],
+    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes"
+  },
+  {
+    "timestamp": "2025-07-14T22:30:00",
+    "source_ip": "172.16.0.23",
+    "destination_ip": "192.168.1.150",
+    "source_port": 33925,
+    "destination_port": 80,
+    "source_hostname": "unknown",
+    "destination_hostname": "web-server01",
+    "alert_type": "Web Reconnaissance",
+    "severity": "medium",
+    "rules_triggered": ["web_dir_scan"],
+    "trigger_reason": "Suspicious directory enumeration activity"
+  },
+  {
+    "timestamp": "2025-07-13T13:44:00",
+    "source_ip": "198.51.100.45",
+    "destination_ip": "192.168.1.115",
+    "source_port": 58711,
+    "destination_port": 3389,
+    "source_hostname": "external-host",
+    "destination_hostname": "rdp-server",
+    "alert_type": "RDP Connection Attempt",
+    "severity": "medium",
+    "rules_triggered": ["rdp_external_access"],
+    "trigger_reason": "Unusual RDP attempt from external IP"
+  },
+  {
+    "timestamp": "2025-07-12T07:22:00",
+    "source_ip": "203.0.113.33",
+    "destination_ip": "192.168.1.117",
+    "source_port": 51109,
+    "destination_port": 25,
+    "source_hostname": "mail-relay",
+    "destination_hostname": "mail-server",
+    "alert_type": "Spam Email Detected",
+    "severity": "low",
+    "rules_triggered": ["mail_spam", "suspicious_attachment"],
+    "trigger_reason": "Email with suspicious attachment detected"
+  },
+  {
+    "timestamp": "2025-07-11T16:11:00",
+    "source_ip": "10.2.2.2",
+    "destination_ip": "192.168.1.200",
+    "source_port": 12345,
+    "destination_port": 3389,
+    "source_hostname": "guest-laptop",
+    "destination_hostname": "rdp-server",
+    "alert_type": "Multiple Login Failures",
+    "severity": "high",
+    "rules_triggered": ["account_lockout", "rdp_failed_login"],
+    "trigger_reason": "Account locked out after several failed RDP logins"
+  }
+]
