@@ -1,5 +1,5 @@
 # app/models.py
-from sqlalchemy import Column, Integer, String, DateTime, ARRAY
+from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean
 import datetime
 from .database import Base
 
@@ -17,3 +17,4 @@ class RawAlert(Base):
     severity = Column(String, nullable=True)
     rules_triggered = Column(ARRAY(String), nullable=True)
     trigger_reason = Column(String, nullable=True)
+    analyzed = Column(Boolean, default=False)
