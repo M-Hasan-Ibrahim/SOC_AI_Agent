@@ -1,6 +1,6 @@
 # SOC_AI_Agent
 
-Create a .env file in the root directory beside Dockerfiel with this content inside:  
+Create a .env file in the root directory beside Dockerfile with this content inside:  
     POSTGRES_USER={POSTGRES USERNAME}  
     POSTGRES_PASSWORD={POSTGRES PASSWORD}  
     POSTGRES_DB={POSTGRES DATABASE NAME}  
