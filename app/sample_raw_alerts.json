@@ -10,7 +10,9 @@
     "alert_type": "Brute Force SSH",
     "severity": "high",
     "rules_triggered": ["ssh_brute_force", "multiple_failed_logins"],
-    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes"
+    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes",
+    "protocol": "TCP",
+    "firewall_action": false
   },
   {
     "timestamp": "2025-07-14T22:30:00",
@@ -18,12 +20,13 @@
     "destination_ip": "192.168.1.150",
     "source_port": 33925,
     "destination_port": 80,
-    "source_hostname": "unknown",
     "destination_hostname": "web-server01",
     "alert_type": "Web Reconnaissance",
     "severity": "medium",
     "rules_triggered": ["web_dir_scan"],
-    "trigger_reason": "Suspicious directory enumeration activity"
+    "trigger_reason": "Suspicious directory enumeration activity",
+    "protocol": "TCP",
+    "firewall_action": true
   },
   {
     "timestamp": "2025-07-13T13:44:00",
@@ -36,20 +39,23 @@
     "alert_type": "RDP Connection Attempt",
     "severity": "medium",
     "rules_triggered": ["rdp_external_access"],
-    "trigger_reason": "Unusual RDP attempt from external IP"
+    "trigger_reason": "Unusual RDP attempt from external IP",
+    "protocol": "TCP",
+    "firewall_action": false
   },
   {
     "timestamp": "2025-07-12T07:22:00",
     "source_ip": "203.0.113.33",
     "destination_ip": "192.168.1.117",
-    "source_port": 51109,
     "destination_port": 25,
     "source_hostname": "mail-relay",
     "destination_hostname": "mail-server",
     "alert_type": "Spam Email Detected",
     "severity": "low",
     "rules_triggered": ["mail_spam", "suspicious_attachment"],
-    "trigger_reason": "Email with suspicious attachment detected"
+    "trigger_reason": "Email with suspicious attachment detected",
+    "protocol": "TCP",
+    "firewall_action": true
   },
   {
     "timestamp": "2025-07-11T16:11:00",
@@ -62,7 +68,9 @@
     "alert_type": "Multiple Login Failures",
     "severity": "high",
     "rules_triggered": ["account_lockout", "rdp_failed_login"],
-    "trigger_reason": "Account locked out after several failed RDP logins"
+    "trigger_reason": "Account locked out after several failed RDP logins",
+    "protocol": "TCP",
+    "firewall_action": false
   },
   {
     "timestamp": "2025-07-16T09:18:00",
@@ -75,6 +83,8 @@
     "alert_type": "Brute Force SSH",
     "severity": "high",
     "rules_triggered": ["ssh_brute_force", "multiple_failed_logins"],
-    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes"
+    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes",
+    "protocol": "TCP",
+    "firewall_action": false
   }
 ]

@@ -6,3 +6,5 @@ requests
 langchain
 langchain-community
 ollama
+openai
+langchain-openai

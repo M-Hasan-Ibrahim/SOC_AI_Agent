@@ -6,6 +6,7 @@ import logging
 from app.database import SessionLocal
 from app.models import RawAlert
 from langchain_community.llms import Ollama
+from langchain_openai import ChatOpenAI
 
 from app.enrichment import enrich_alert_ip_abuseipdb, enrich_alert_ip_virustotal, enrich_alert_ip_ipinfo
 from app.enrichment_methods import get_enrichment, format_enrichment, format_multiple_enrichments
@@ -36,7 +37,8 @@ def get_alert_from_db(alert_id):
 def choose_playbook(llm, alert_details, playbook_index):
     prompt = playbook_index + "\n\n" + alert_details
     response = llm.invoke(prompt)
-    cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    #cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    cleaned = response.content
     return cleaned
 
 def choose_tools(llm, alert_details, steps, tool_index):
@@ -49,12 +51,14 @@ def choose_tools(llm, alert_details, steps, tool_index):
         "Which enrichment tools (APIs) should be used for this alert? Respond ONLY with the tool name(s) from the list above, or 'None'."
     )
     response = llm.invoke(prompt)
-    cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    #cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    cleaned = response.content
     return cleaned
 
 def analyze_steps(llm, prompt):
     response = llm.invoke(prompt)
-    cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    #cleaned = re.sub(r"<think>.*?</think>", "", response, flags=re.DOTALL).strip()
+    cleaned = response.content
     return cleaned
 
 
@@ -62,12 +66,17 @@ def analyze_steps(llm, prompt):
 
 def main(alert_id):
     start = time.time()
-    ollama_base_url = "http://host.docker.internal:11434"
+    # ollama_base_url = "http://host.docker.internal:11434"
 
-    llm = Ollama(
-        model="deepseek-r1:8b",      
-        base_url=ollama_base_url,      
-    )
+    # llm = Ollama(
+    #     model="deepseek-r1:8b",      
+    #     base_url=ollama_base_url,      
+    # )
+    
+    llm = ChatOpenAI(  
+        model="gpt-4o-mini",  
+        api_key=os.environ["OPENAI_API_KEY"]  
+    )  
 
     with open("app/playbook.json", "r") as file:
         playbook = json.load(file)

@@ -1,6 +1,6 @@
 {
   "Brute Force": {
-    "description": "Workflow for repeated failed login or brute force alerts.",
+    "description": "Workflow for handling repeated failed login or brute force alerts on SSH/RDP services.",
     "steps": [
       {
         "step_number": 1,
@@ -8,7 +8,7 @@
         "action_type": "review",
         "inputs": ["alert data"],
         "outputs": ["summary of attempted logins"],
-        "instructions": "Summarize which accounts and IPs are involved in the brute force attempts."
+        "instructions": "Summarize which accounts and IPs are involved in the brute force attempts. Note targeted service (SSH or RDP) and destination hosts."
       },
       {
         "step_number": 2,
@@ -16,23 +16,71 @@
         "action_type": "enrich",
         "inputs": ["source IP"],
         "outputs": ["threat reputation of IP"],
-        "instructions": "Look up the source IP in threat intelligence databases (such as AbuseIPDB)."
+        "instructions": "Look up the source IP in threat intelligence databases (e.g., VirusTotal, AbuseIPDB) and document if the IP is suspicious or malicious."
       },
       {
         "step_number": 3,
-        "name": "Search for Successful Logins",
-        "action_type": "log_query",
-        "inputs": ["account names", "time window"],
-        "outputs": ["any successful logins after brute force"],
-        "instructions": "Check if the targeted account had any successful logins after the brute force attempts."
+        "name": "Analyze Log Traffic",
+        "action_type": "investigate",
+        "inputs": ["network logs", "source IP", "destination port"],
+        "outputs": ["list of events for attempted access"],
+        "instructions": "Search for the attacker IP in logs for connections to SSH (22) or RDP (3389) ports. Document number of attempts, affected hosts, and ports."
       },
       {
         "step_number": 4,
-        "name": "Recommend Remediation",
-        "action_type": "recommendation",
-        "inputs": ["all prior step outputs"],
-        "outputs": ["incident severity", "recommended action"],
-        "instructions": "Based on findings, decide if the attack was successful. Recommend user password reset, blocking IP, or further investigation."
+        "name": "Determine Attack Scope",
+        "action_type": "investigate",
+        "inputs": ["event list"],
+        "outputs": ["scope of attack"],
+        "instructions": "Review destination IP addresses to see if the attacker targeted one host or multiple. Record findings."
+      },
+      {
+        "step_number": 5,
+        "name": "Check Authentication Logs",
+        "action_type": "investigate",
+        "inputs": ["auth logs", "source IP", "destination host"],
+        "outputs": ["success/failure sequence"],
+        "instructions": "Review authentication logs. For Windows, check Event IDs 4624 (success) and 4625 (failure). For Linux, grep 'Failed password' and 'Accepted password' in auth.log. Determine if a successful login follows a series of failures from the same IP."
+      },
+      {
+        "step_number": 6,
+        "name": "Search for Post-Compromise Actions",
+        "action_type": "investigate",
+        "inputs": ["system logs", "compromised user", "source IP"],
+        "outputs": ["evidence of attacker commands"],
+        "instructions": "Look for command execution events. On Windows, search for Event ID 4688 from the compromised account and attacker IP. On Linux, review bash history or audit logs. Record suspicious commands."
+      },
+      {
+        "step_number": 7,
+        "name": "Contain Affected System",
+        "action_type": "contain",
+        "inputs": ["compromised system"],
+        "outputs": ["system isolated"],
+        "instructions": "Isolate the affected system from the network to prevent further attacker activity if compromise is confirmed."
+      },
+      {
+        "step_number": 8,
+        "name": "Report and Document IOCs",
+        "action_type": "report",
+        "inputs": ["investigation findings"],
+        "outputs": ["incident report", "list of IOCs"],
+        "instructions": "Compile source IPs, destination IPs, compromised accounts, attack timeline, and commands run. Share with appropriate stakeholders and teams."
+      },
+      {
+        "step_number": 9,
+        "name": "Classify and Assess",
+        "action_type": "classify",
+        "inputs": ["all findings"],
+        "outputs": ["incident classification", "MITRE techniques", "severity"],
+        "instructions": "Classify the alert as True or False Positive. Document attack type (e.g., SSH/RDP brute force), relevant MITRE ATT&CK techniques (T1110, T1059), and assign a severity (e.g., High)."
+      },
+      {
+        "step_number": 10,
+        "name": "Recommendations and Lessons Learned",
+        "action_type": "remediate",
+        "inputs": ["incident report"],
+        "outputs": ["remediation recommendations"],
+        "instructions": "Advise on strong password policies, MFA implementation, limiting public network access, and additional monitoring. Document lessons learned and update playbook if needed."
       }
     ]
   },

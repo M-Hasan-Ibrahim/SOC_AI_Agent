@@ -1,4 +1,18 @@
 # SOC_AI_Agent
+You can use both openai and deepseek in this project, change the llm model in app/workflow.py, requirements file will download both libraries for openai and deepseek ollama  
+ollama:  
+ollama_base_url = "http://host.docker.internal:11434"  
+
+    llm = Ollama(  
+        model="deepseek-r1:8b",        
+        base_url=ollama_base_url,        
+    )  
+openai:    
+llm = ChatOpenAI(  
+    model="gpt-4o-mini",  
+    api_key=os.environ["OPENAI_API_KEY"]  
+)  
+
 
 1- Create a .env file in the root directory beside Dockerfile with this content inside:  
     POSTGRES_USER={POSTGRES USERNAME}  
@@ -6,9 +20,10 @@
     POSTGRES_DB={POSTGRES DATABASE NAME}  
     PGADMIN_DEFAULT_EMAIL={PGADMIN EMAIL}  
     PGADMIN_DEFAULT_PASSWORD={PGADMIN PASSWORD}  
-    ABUSEIPDB_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
-    IPINFO_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
-    VIRUSTOTAL_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
+    ABUSEIPDB_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
+    IPINFO_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
+    VIRUSTOTAL_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
+    OPENAI_API_KEY={OPENAI API KEY}
 
 2- To build docker:  
 docker compose up --build       

@@ -11,7 +11,7 @@ def fill_database_from_json(json_file_path):
 
     db: Session = SessionLocal()
     added = 0
-    skipped = 0
+    updated = 0
 
     for alert in alerts:
         if "timestamp" in alert and alert["timestamp"]:
@@ -22,23 +22,31 @@ def fill_database_from_json(json_file_path):
         existing = db.query(RawAlert).filter(
             and_(
                 RawAlert.timestamp == alert_dt,
-                RawAlert.alert_type == alert["alert_type"]
+                RawAlert.alert_type == alert["alert_type"],
+                RawAlert.source_ip == alert["source_ip"],
+                RawAlert.destination_ip == alert["destination_ip"]
             )
         ).first()
+        
+        alert["timestamp"] = alert_dt
 
         if existing:
-            print(f"Skipping duplicate alert: {alert['alert_type']} at {alert['timestamp']}")
-            skipped += 1
-            continue
-
-        alert["timestamp"] = alert_dt
-        db_alert = RawAlert(**alert)
-        db.add(db_alert)
-        added += 1
-
+            for key in RawAlert.__table__.columns.keys():
+                if key == "id":
+                    continue
+                if key in alert:
+                    setattr(existing, key, alert[key])
+                else:
+                    setattr(existing, key, None)
+            updated += 1
+        else:
+            db_alert = RawAlert(**alert)
+            db.add(db_alert)
+            added += 1
+                
     db.commit()
     db.close()
-    print(f"Inserted {added} new alerts. Skipped {skipped} duplicates.")
+    print(f"Inserted {added} new alerts. Updated {updated} alerts.")
 
 if __name__ == "__main__":
     fill_database_from_json("app/sample_raw_alerts.json")
