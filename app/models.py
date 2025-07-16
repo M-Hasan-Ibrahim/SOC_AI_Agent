@@ -1,5 +1,6 @@
 # app/models.py
-from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean, ForeignKey, JSON, Text
+from sqlalchemy.orm import relationship
 import datetime
 from .database import Base
 
@@ -31,3 +32,21 @@ class Enrichment(Base):
     enrichment_result = Column(JSON)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
     
+class AnalyzedAlert(Base):
+    __tablename__ = "analyzed_alerts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    alert_id = Column(Integer, ForeignKey("raw_alerts.id"), nullable=False, unique=True)
+    isolation = Column(String, nullable=False)
+    true_positive = Column(Boolean, nullable=False)
+    attack_type = Column(String, nullable=False)
+    severity = Column(String, nullable=False)
+    recommendations = Column(Text, nullable=False)
+    reasoning = Column(Text, nullable=False)
+    artifacts_and_iocs = Column(JSON, nullable=True)
+    summary = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+    raw_alert = relationship("RawAlert", backref="analyzed_alert")
+
+def __repr__(self):
+    return f"<AnalyzedAlert(alert_id={self.alert_id}, severity={self.severity}, true_positive={self.true_positive})>"

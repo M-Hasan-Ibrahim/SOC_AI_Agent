@@ -4,9 +4,10 @@ import re
 import time
 import logging
 from app.database import SessionLocal
-from app.models import RawAlert
+from app.models import AnalyzedAlert, RawAlert
 from langchain_community.llms import Ollama
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.enrichment import enrich_alert_ip_abuseipdb, enrich_alert_ip_virustotal, enrich_alert_ip_ipinfo
 from app.enrichment_methods import get_enrichment, format_enrichment, format_multiple_enrichments
@@ -61,8 +62,33 @@ def analyze_steps(llm, prompt):
     cleaned = response.content
     return cleaned
 
+def add_final_output(alert_id, ai_output):
+    
+    try:
+        ai_output = json.loads(ai_output)
+    except json.JSONDecodeError as e:
+        print("Error parsing LLM response as JSON:", e)
+        print("LLM response was:", ai_output)
+        return
 
-
+    
+    db_alert = AnalyzedAlert(
+    alert_id=alert_id,
+    isolation=ai_output["isolation"],
+    true_positive=ai_output["true_positive"],
+    attack_type=ai_output["attack_type"],
+    severity=ai_output["severity"],
+    recommendations=ai_output["recommendations"],
+    reasoning=ai_output["reasoning"],
+    artifacts_and_iocs=ai_output["artifacts_and_iocs"],
+    summary=ai_output["summary"]
+    )
+    
+    db = SessionLocal()
+    db.add(db_alert)
+    db.commit()
+    db.close()
+#------------------------------------------------------------------------------------------------------  
 
 def main(alert_id):
     start = time.time()
@@ -178,30 +204,52 @@ def main(alert_id):
         steps_text += f"Instruction: {step['instructions']}\n\n"
     
     enrichment_text = format_multiple_enrichments(enrichments_for_prompt)
-   
-    final_prompt = (
-    f"Alert details:\n{alert_details}\n\n"
-    f"Enrichment data:\n{enrichment_text}\n\n"
-    f"Given the following steps for handling this alert:\n\n"
-    f"{steps_text}"
-    "For each step instruction, give a very brief response based ONLY on the alert details and enrichment above. Recommend remediation at the end. "
-    "If you cannot respond to an instruction, say so."
-    )
-   
-    final_cleaned_response = analyze_steps(llm, final_prompt)
-    print(final_cleaned_response)
-   
-   
     
-    # file_path = f"app/deepseekResponse.txt"
-    # with open(file_path, "a", encoding="utf-8") as f:
-    #     f.write(f"Response to alert:\n {alert_details}")
-    #     f.write("\n\n")
-    #     f.write(cleaned_response_to_steps.strip())
-    #     f.write("\n--------------------------------------------------------------------------------\n")
+    system_format_prompt = """
+    You are an expert AI SOC analyst. Respond ONLY using this JSON format, with brief, relevant information for each key:
+
+    {
+    "isolation": "yes" or "no",       // Should the device be isolated? 
+    "true_positive": true or false,   // Is this a true positive or false positive alert?
+    "attack_type": "<MITRE technique or name>", // E.g., "T1110 (Brute Force)", or "T1059 (Command and Scripting Interpreter)"
+    "severity": "Low" | "Medium" | "High", // Assess severity based on all evidence, not just the alert's original value. If your investigation suggests it is higher or lower than the alert's severity, change it and explain why in reasoning.
+    "recommendations": "...",         // Short, clear mitigation/remediation steps
+    "reasoning": "...",               // Why did you classify this as you did? Be concise but clear.
+    "artifacts_and_iocs": [           // List any found artifacts or indicators of compromise
+        "<ioc1>", "<ioc2>", ...
+    ]
+    "summary": "Summarize the entire investigation here. Step by step, briefly explain what was found in each stage (alert, enrichment, investigation, analysis, decision), so a human SOC analyst understands what happened and how you reached your result. This should help with auditing or deeper review."
+    }
+
+    IMPORTANT: The 'severity' field is for your own, independent assessment. Do NOT simply copy the alert's severity value—adjust it as needed based on your findings.
+    Only respond with valid JSON in this structure. Do not write any explanations outside the JSON.
+    """
+    
+    human_prompt = f"""
+    Here is the alert to analyze:
+
+    {alert_details}
+
+    Enrichment data:
+    {enrichment_text}
+
+    Relevant playbook steps:
+    {steps_text}
+
+    Please fill in the JSON above based on the alert, enrichment data, and steps. Use "no" or empty array if nothing applies to a field.
+    """
+    
+    final_prompt = [
+        SystemMessage(content=system_format_prompt),
+        HumanMessage(content=human_prompt)
+    ]
+
+    final_response = analyze_steps(llm, final_prompt)
+    print(final_response)
+    add_final_output(alert_id, final_response)
     
     end = time.time()
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-     main(alert_id=6)
+     main(alert_id=1)
