@@ -23,7 +23,7 @@ llm = ChatOpenAI(
     ABUSEIPDB_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
     IPINFO_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
     VIRUSTOTAL_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website  
-    OPENAI_API_KEY={OPENAI API KEY}
+    OPENAI_API_KEY={OPENAI API KEY} #go to platform.openai.com  
 
 2- To build docker:  
 docker compose up --build       

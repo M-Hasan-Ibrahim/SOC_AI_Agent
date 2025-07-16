@@ -1,8 +1,9 @@
-# app/models.py
 from sqlalchemy import Column, Integer, String, DateTime, ARRAY, Boolean, ForeignKey, JSON, Text
 from sqlalchemy.orm import relationship
 import datetime
 from .database import Base
+
+#add logs table
 
 class RawAlert(Base):
     __tablename__ = "raw_alerts"

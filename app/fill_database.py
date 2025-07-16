@@ -31,7 +31,7 @@ def fill_database_from_json(json_file_path):
 
         if existing:
             for key in RawAlert.__table__.columns.keys():
-                if key == "id":
+                if key == "id" or key == "analyzed":
                     continue
                 if key in alert:
                     setattr(existing, key, alert[key])

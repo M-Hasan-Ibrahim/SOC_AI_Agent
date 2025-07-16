@@ -8,6 +8,7 @@ from app.models import AnalyzedAlert, RawAlert
 from langchain_community.llms import Ollama
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
+import re
 
 from app.enrichment import enrich_alert_ip_abuseipdb, enrich_alert_ip_virustotal, enrich_alert_ip_ipinfo
 from app.enrichment_methods import get_enrichment, format_enrichment, format_multiple_enrichments
@@ -106,7 +107,7 @@ def main(alert_id):
     # )
     
     llm = ChatOpenAI(  
-        model="gpt-4o-mini",  
+        model="gpt-4.1",  
         api_key=os.environ["OPENAI_API_KEY"]  
     )  
 
@@ -128,15 +129,15 @@ def main(alert_id):
         return
     alert_details = format_alert(alert_obj)
 
-    cleaned_response = choose_playbook(llm, alert_details, playbook_index)
+    playbook_choice = choose_playbook(llm, alert_details, playbook_index)
     
-    print(cleaned_response)
+    print(playbook_choice)
     print("\n\n")
 
-    if cleaned_response not in playbook:
-        logging.error(f"Unexpected playbook response: {cleaned_response}")
+    if playbook_choice not in playbook:
+        logging.error(f"Unexpected playbook response: {playbook_choice}")
         return
-    steps = playbook[cleaned_response]['steps']
+    steps = playbook[playbook_choice]['steps']
 #------------------------------------------------------------------------------------------------------  
     recommended_tools = choose_tools(llm, alert_details, steps, tool_index)
     print(recommended_tools)
@@ -147,7 +148,6 @@ def main(alert_id):
     #     enrich_alert_ip_abuseipdb(alert_obj.id, alert_obj.source_ip)
     # else:
     #     print("No recommended tools from the AI")
-
 
     enrichments_for_prompt = []
 
@@ -169,21 +169,42 @@ def main(alert_id):
                 )
                 if enrichment:
                     enrichments_for_prompt.append(enrichment)
-        elif tool == "virustotal" and alert_obj.source_ip:
+        elif tool == "virustotal_ip" and alert_obj.source_ip:
             enrichment = get_enrichment(
-                alert_obj.id, "virustotal", "ip", alert_obj.source_ip
+                alert_obj.id, "virustotal_ip", "ip", alert_obj.source_ip
             )
             if enrichment:
-                print("Using existing VirusTotal enrichment.")
+                print("Using existing VirusTotal_IP enrichment.")
                 enrichments_for_prompt.append(enrichment)
             else:
-                print(f"Enriching IP {alert_obj.source_ip} with VirusTotal...")
+                print(f"Enriching IP {alert_obj.source_ip} with VirusTotal_IP...")
                 enrich_alert_ip_virustotal(alert_obj.id, alert_obj.source_ip)
                 enrichment = get_enrichment(
-                    alert_obj.id, "virustotal", "ip", alert_obj.source_ip
+                    alert_obj.id, "virustotal_ip", "ip", alert_obj.source_ip
                 )
                 if enrichment:
                     enrichments_for_prompt.append(enrichment)
+
+        elif tool == "virustotal_url":
+            urls = re.findall(r'(https?://\S+)', alert_obj.trigger_reason or "")
+            if urls:
+                url_value = urls[0]
+                enrichment = get_enrichment(
+                    alert_obj.id, "virustotal_url", "url", url_value
+                )
+                if enrichment:
+                    print("Using existing VirusTotal_URL enrichment.")
+                    enrichments_for_prompt.append(enrichment)
+                else:
+                    print(f"Enriching URL {url_value} with VirusTotal_URL...")
+                    enrich_alert_url_virustotal(alert_obj.id, url_value)
+                    enrichment = get_enrichment(
+                        alert_obj.id, "virustotal_url", "url", url_value
+                    )
+                    if enrichment:
+                        enrichments_for_prompt.append(enrichment)
+            else:
+                print("No URL found in alert for VirusTotal_URL enrichment.")
         elif tool == "ipinfo.io" and alert_obj.source_ip:
             enrichment = get_enrichment(
                 alert_obj.id, "ipinfo.io", "ip", alert_obj.source_ip
@@ -210,6 +231,8 @@ def main(alert_id):
         steps_text += f"Instruction: {step['instructions']}\n\n"
     
     enrichment_text = format_multiple_enrichments(enrichments_for_prompt)
+    
+    #make it extract from logs
     
     system_format_prompt = """
     You are an expert AI SOC analyst. Respond ONLY using this JSON format, with brief, relevant information for each key:
