@@ -63,5 +63,18 @@
     "severity": "high",
     "rules_triggered": ["account_lockout", "rdp_failed_login"],
     "trigger_reason": "Account locked out after several failed RDP logins"
+  },
+  {
+    "timestamp": "2025-07-16T09:18:00",
+    "source_ip": "167.99.169.17",
+    "destination_ip": "192.168.1.101",
+    "source_port": 45211,
+    "destination_port": 22,
+    "source_hostname": "internal-pc01",
+    "destination_hostname": "prod-ssh-server",
+    "alert_type": "Brute Force SSH",
+    "severity": "high",
+    "rules_triggered": ["ssh_brute_force", "multiple_failed_logins"],
+    "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes"
   }
 ]

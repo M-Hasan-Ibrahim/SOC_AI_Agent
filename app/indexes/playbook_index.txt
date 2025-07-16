@@ -1,0 +1,9 @@
+Available playbooks:
+
+    1. Brute Force — For repeated failed login attempts or authentication attacks on user accounts.
+    2. Phishing — For suspicious or malicious emails that try to trick users into clicking links, opening attachments, or giving up credentials.
+    3. Malware — For detections of known malicious files, software, or unusual file hashes.
+    4. Lateral Movement — For cases where an attacker moves from one system to another within the network, often using remote desktop or SMB shares.
+
+    Instructions:
+    Based on the alert details I will give you, choose the one playbook that best matches the alert. If you want Brute Force, respond ONLY with: Brute Force. If you want Phishing, respond ONLY with: Phishing. Do the same for the other options.

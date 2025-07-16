@@ -72,29 +72,14 @@ def main(alert_id):
     with open("app/playbook.json", "r") as file:
         playbook = json.load(file)
 
-    playbook_index = """
-    Available playbooks:
-
-    1. Brute Force — For repeated failed login attempts or authentication attacks on user accounts.
-    2. Phishing — For suspicious or malicious emails that try to trick users into clicking links, opening attachments, or giving up credentials.
-    3. Malware — For detections of known malicious files, software, or unusual file hashes.
-    4. Lateral Movement — For cases where an attacker moves from one system to another within the network, often using remote desktop or SMB shares.
-
-    Instructions:
-    Based on the alert details I will give you, choose the one playbook that best matches the alert. If you want Brute Force, respond ONLY with: Brute Force. If you want Phishing, respond ONLY with: Phishing. Do the same for the other options.
-    """
+    playbook_index_path = "app/indexes/playbook_index.txt"
+    with open(playbook_index_path, 'r', encoding='utf-8') as f:
+        playbook_index = f.read()
     
-    tool_index = """
-    Available enrichment tools (APIs):
-
-    1. AbuseIPDB — Check if an IP address is reported for abuse, threats, or malicious activity.
-    2. VirusTotal — Scan URLs or files for malware and phishing activity using dozens of antivirus engines.
-    3. ipinfo.io — Get public IP address information (geolocation, ASN, hostname, etc.).
-
-    Instructions:
-    Given the alert details and playbook steps, recommend which of the above tools (if any) should be used for enrichment. Respond ONLY with the tool name(s) that apply, or "None" if none are needed.
-    Reply with tool1 tool2..., or just a single tool name, if none is needed return None.
-    """
+    
+    tool_index_path = "app/indexes/tool_index.txt"
+    with open(tool_index_path, 'r', encoding='utf-8') as f:
+        tool_index = f.read()
 
     alert_obj = get_alert_from_db(alert_id)
     if not alert_obj:
@@ -114,7 +99,7 @@ def main(alert_id):
 #------------------------------------------------------------------------------------------------------  
     recommended_tools = choose_tools(llm, alert_details, steps, tool_index)
     print(recommended_tools)
-    recommended_tools = [tool.strip().lower() for tool in recommended_tools.split(" ")]
+    recommended_tools = [tool.strip().lower() for tool in recommended_tools.split(",")]
     
     # if "abuseipdb" in recommended_tools and alert_obj.source_ip:
     #     print(f"Enriching IP {alert_obj.source_ip} with AbuseIPDB...")
@@ -210,4 +195,4 @@ def main(alert_id):
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-    main(alert_id=1)
+     main(alert_id=6)

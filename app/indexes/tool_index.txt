@@ -1,0 +1,9 @@
+Available enrichment tools (APIs):
+
+    1. AbuseIPDB — Check if an IP address is reported for abuse, threats, or malicious activity.
+    2. VirusTotal — Scan URLs or files for malware and phishing activity using dozens of antivirus engines.
+    3. ipinfo.io — Get public IP address information (geolocation, ASN, hostname, etc.).
+
+    Instructions:
+    Given the alert details and playbook steps, recommend which of the above tools (if any) should be used for enrichment. Respond ONLY with the tool name(s) that apply, or "None" if none are needed.
+    Reply with tool1 tool2..., or just a single tool name, if none is needed return None.

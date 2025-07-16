@@ -7,6 +7,8 @@
     PGADMIN_DEFAULT_EMAIL={PGADMIN EMAIL}  
     PGADMIN_DEFAULT_PASSWORD={PGADMIN PASSWORD}  
     ABUSEIPDB_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
+    IPINFO_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
+    VIRUSTOTAL_API_KEY={ABUSEIPDB API KEY}   #create it from abuseipdb website
 
 2- To build docker:  
 docker compose up --build       
