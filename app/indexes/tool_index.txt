@@ -6,4 +6,4 @@ Available enrichment tools (APIs):
 
     Instructions:
     Given the alert details and playbook steps, recommend which of the above tools (if any) should be used for enrichment. Respond ONLY with the tool name(s) that apply, or "None" if none are needed.
-    Reply with tool1 tool2..., or just a single tool name, if none is needed return None.
+    Reply with tool1 tool2... or just a single tool name, if none is needed return None.

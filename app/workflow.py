@@ -70,7 +70,12 @@ def add_final_output(alert_id, ai_output):
         print("Error parsing LLM response as JSON:", e)
         print("LLM response was:", ai_output)
         return
-
+    db = SessionLocal()
+    existing = db.query(AnalyzedAlert).filter_by(alert_id=alert_id).first()
+    if existing:
+        print(f"AnalyzedAlert for alert_id {alert_id} already exists. Skipping insert.")
+        db.close()
+        return
     
     db_alert = AnalyzedAlert(
     alert_id=alert_id,
@@ -84,10 +89,11 @@ def add_final_output(alert_id, ai_output):
     summary=ai_output["summary"]
     )
     
-    db = SessionLocal()
+    
     db.add(db_alert)
     db.commit()
     db.close()
+    print(f"Inserted analyzed alert for alert_id {alert_id}")
 #------------------------------------------------------------------------------------------------------  
 
 def main(alert_id):
@@ -134,7 +140,7 @@ def main(alert_id):
 #------------------------------------------------------------------------------------------------------  
     recommended_tools = choose_tools(llm, alert_details, steps, tool_index)
     print(recommended_tools)
-    recommended_tools = [tool.strip().lower() for tool in recommended_tools.split(",")]
+    recommended_tools = [tool.strip().lower() for tool in recommended_tools.split(" ")]
     
     # if "abuseipdb" in recommended_tools and alert_obj.source_ip:
     #     print(f"Enriching IP {alert_obj.source_ip} with AbuseIPDB...")

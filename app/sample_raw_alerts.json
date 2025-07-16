@@ -86,5 +86,16 @@
     "trigger_reason": "More than 50 failed SSH login attempts in 5 minutes",
     "protocol": "TCP",
     "firewall_action": false
+  },
+  {
+    "timestamp": "2024-03-17T08:11:00",
+    "source_ip": "218.92.0.56",
+    "destination_ip": "172.16.17.148",
+    "destination_hostname": "Matthew",
+    "severity": "high",
+    "rules_triggered": ["rdp_brute_force_detected"],
+    "trigger_reason": "Login failure from a single source with different non existing accounts",
+    "protocol": "RDP",
+    "firewall_action": true
   }
 ]

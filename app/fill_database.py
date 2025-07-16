@@ -22,7 +22,6 @@ def fill_database_from_json(json_file_path):
         existing = db.query(RawAlert).filter(
             and_(
                 RawAlert.timestamp == alert_dt,
-                RawAlert.alert_type == alert["alert_type"],
                 RawAlert.source_ip == alert["source_ip"],
                 RawAlert.destination_ip == alert["destination_ip"]
             )
