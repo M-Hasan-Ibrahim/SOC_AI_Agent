@@ -1,1 +1,3 @@
 .env
+app\test_deepseek.py
+app\deepseekResponse.txt

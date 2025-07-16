@@ -22,7 +22,7 @@ def enrich_ip_with_abuseipdb(ip_address):
         return {"error": "Could not parse response"}
 
 
-def enrich_alert_ip(alert_id, ip_address):
+def enrich_alert_ip_abuseipdb(alert_id, ip_address):
     db = SessionLocal()
     result = enrich_ip_with_abuseipdb(ip_address)
     enrichment = Enrichment(
@@ -35,3 +35,9 @@ def enrich_alert_ip(alert_id, ip_address):
     db.add(enrichment)
     db.commit()
     db.close()
+    
+def enrich_alert_ip_virustotal(alert_id, ip_address):
+    pass
+
+def enrich_alert_ip_ipinfo(alert_id, ip_address):
+    pass

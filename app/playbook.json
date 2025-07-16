@@ -1,0 +1,76 @@
+{
+  "Brute Force": {
+    "description": "Workflow for repeated failed login or brute force alerts.",
+    "steps": [
+      {
+        "step_number": 1,
+        "name": "Review Alert Details",
+        "action_type": "review",
+        "inputs": ["alert data"],
+        "outputs": ["summary of attempted logins"],
+        "instructions": "Summarize which accounts and IPs are involved in the brute force attempts."
+      },
+      {
+        "step_number": 2,
+        "name": "Check for Threat Intelligence",
+        "action_type": "enrich",
+        "inputs": ["source IP"],
+        "outputs": ["threat reputation of IP"],
+        "instructions": "Look up the source IP in threat intelligence databases (such as AbuseIPDB)."
+      },
+      {
+        "step_number": 3,
+        "name": "Search for Successful Logins",
+        "action_type": "log_query",
+        "inputs": ["account names", "time window"],
+        "outputs": ["any successful logins after brute force"],
+        "instructions": "Check if the targeted account had any successful logins after the brute force attempts."
+      },
+      {
+        "step_number": 4,
+        "name": "Recommend Remediation",
+        "action_type": "recommendation",
+        "inputs": ["all prior step outputs"],
+        "outputs": ["incident severity", "recommended action"],
+        "instructions": "Based on findings, decide if the attack was successful. Recommend user password reset, blocking IP, or further investigation."
+      }
+    ]
+  },
+  "Phishing": {
+    "description": "Workflow for phishing email or suspicious email link alerts.",
+    "steps": [
+      {
+        "step_number": 1,
+        "name": "Extract Email Indicators",
+        "action_type": "extract",
+        "inputs": ["alert data"],
+        "outputs": ["sender", "subject", "URLs", "attachments"],
+        "instructions": "List all suspicious elements in the email."
+      },
+      {
+        "step_number": 2,
+        "name": "Check URLs and Attachments",
+        "action_type": "enrich",
+        "inputs": ["URLs", "attachments"],
+        "outputs": ["reputation of links/attachments"],
+        "instructions": "Scan URLs and files in threat intelligence databases (such as VirusTotal or urlscan.io)."
+      },
+      {
+        "step_number": 3,
+        "name": "User Activity Check",
+        "action_type": "log_query",
+        "inputs": ["recipient account", "time window"],
+        "outputs": ["user actions (clicked links, opened attachments)"],
+        "instructions": "Check if the recipient interacted with the suspicious email content."
+      },
+      {
+        "step_number": 4,
+        "name": "Recommend Remediation",
+        "action_type": "recommendation",
+        "inputs": ["all prior step outputs"],
+        "outputs": ["incident severity", "recommended action"],
+        "instructions": "Advise on user notification, password reset, and blocking sender, depending on findings."
+      }
+    ]
+  }
+}
