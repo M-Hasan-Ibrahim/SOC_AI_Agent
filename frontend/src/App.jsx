@@ -1,35 +1,52 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import Header from './components/Header';
+import TabNav from './components/TabNav';
+import Toast from './components/Toast';
+import LogsTab from './tabs/LogsTab';
+import AlertsTab from './tabs/AlertsTab';
+import ClosedAlertsTab from './tabs/ClosedAlertsTab';
+import './index.css';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function App() {
+  
+
+  const [activeTab, setActiveTab] = useState('logs');
+  const [toast, setToast] = useState(null);
+  const [dataVersion, setDataVersion] = useState(0);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
+  const handleDataChange = () => {
+    setDataVersion(prev => prev + 1);
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <TabNav activeTab={activeTab} onTabChange={setActiveTab} />
+      
+      <main className="p-6">
+        <div className="max-w-7xl mx-auto">
+          {activeTab === 'logs' && <LogsTab key={`logs-${dataVersion}`} />}
+          {activeTab === 'alerts' && (
+            <AlertsTab key={`alerts-${dataVersion}`} onDataChange={handleDataChange} />
+          )}
+          {activeTab === 'closed' && (
+            <ClosedAlertsTab key={`closed-${dataVersion}`} />
+          )}
+        </div>
+      </main>
 
-export default App
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+    </div>
+  );
+}
