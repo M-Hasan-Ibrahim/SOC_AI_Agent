@@ -42,6 +42,17 @@ services:
       IPINFO_API_KEY: ${IPINFO_API_KEY}
       VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
+    
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
 
 volumes:
   db_data:
