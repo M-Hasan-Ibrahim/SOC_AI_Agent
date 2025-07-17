@@ -4,6 +4,24 @@ import datetime
 from .database import Base
 
 #add logs table
+class Log(Base):
+    __tablename__ = "logs"
+    id = Column(Integer, primary_key=True, index=True)
+
+    type = Column(String, nullable=False)
+    source_address = Column(String, nullable=False)
+    source_port = Column(Integer, nullable=True)
+    destination_address = Column(String, nullable=False)
+    destination_host = Column(String, nullable=True)
+    destination_port = Column(Integer, nullable=True)
+    timestamp = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
+    event_id = Column(String, nullable=True)
+    logon_type = Column(String, nullable=True)
+    logon_process = Column(String, nullable=True)
+    username = Column(String, nullable=True)
+    parent_process = Column(String, nullable=True)
+    new_process = Column(String, nullable=True)
+    creator_user = Column(String, nullable=True)
 
 class RawAlert(Base):
     __tablename__ = "raw_alerts"

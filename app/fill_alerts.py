@@ -5,7 +5,7 @@ from app.database import SessionLocal
 from app.models import RawAlert
 import datetime
 
-def fill_database_from_json(json_file_path):
+def fill_alerts_from_json(json_file_path):
     with open(json_file_path, 'r') as f:
         alerts = json.load(f)
 
@@ -48,4 +48,4 @@ def fill_database_from_json(json_file_path):
     print(f"Inserted {added} new alerts. Updated {updated} alerts.")
 
 if __name__ == "__main__":
-    fill_database_from_json("app/sample_raw_alerts.json")
+    fill_alerts_from_json("app/sample_raw_alerts.json")

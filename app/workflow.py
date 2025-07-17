@@ -4,37 +4,18 @@ import re
 import time
 import logging
 from app.database import SessionLocal
-from app.models import AnalyzedAlert, RawAlert
+from app.models import AnalyzedAlert, RawAlert, Log
 from langchain_community.llms import Ollama
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 import re
 
 from app.enrichment import enrich_alert_ip_abuseipdb, enrich_alert_ip_virustotal, enrich_alert_ip_ipinfo
-from app.enrichment_methods import get_enrichment, format_enrichment, format_multiple_enrichments
+from app.methods.enrichment_methods import get_enrichment, format_enrichment, format_multiple_enrichments
+from app.methods.log_methods import get_logs_for_alert_ips, format_logs_for_prompt
+from app.methods.alert_methods import format_alert, get_alert_from_db
 
 logging.basicConfig(level=logging.INFO)
-
-def format_alert(alert):
-    return (
-        f"timestamp: {alert.timestamp}\n"
-        f"source_ip: {alert.source_ip}\n"
-        f"destination_ip: {alert.destination_ip}\n"
-        f"source_port: {alert.source_port}\n"
-        f"destination_port: {alert.destination_port}\n"
-        f"source_hostname: {alert.source_hostname}\n"
-        f"destination_hostname: {alert.destination_hostname}\n"
-        f"alert_type: {alert.alert_type}\n"
-        f"severity: {alert.severity}\n"
-        f"rules_triggered: {alert.rules_triggered}\n"
-        f"trigger_reason: {alert.trigger_reason}"
-    )
-
-def get_alert_from_db(alert_id):
-    db = SessionLocal()
-    alert = db.query(RawAlert).filter(RawAlert.id == alert_id).first()
-    db.close()
-    return alert
 
 def choose_playbook(llm, alert_details, playbook_index):
     prompt = playbook_index + "\n\n" + alert_details
@@ -111,7 +92,7 @@ def main(alert_id):
     # )
     
     llm = ChatOpenAI(  
-        model="gpt-4o-mini",  
+        model="gpt-4.1",  
         api_key=os.environ["OPENAI_API_KEY"]  
     )  
 
@@ -258,6 +239,9 @@ def main(alert_id):
     Only respond with valid JSON in this structure. Do not write any explanations outside the JSON.
     """
     
+    logs = get_logs_for_alert_ips(alert_obj.source_ip, alert_obj.destination_ip)
+    logs_text = format_logs_for_prompt(logs)
+    
     human_prompt = f"""
     Here is the alert to analyze:
 
@@ -265,6 +249,9 @@ def main(alert_id):
 
     Enrichment data:
     {enrichment_text}
+    
+    Related logs: //some logs may not be relevant to this alert, so make sure to look at each log first and remove ones that are not relevant
+    {logs_text}
 
     Relevant playbook steps:
     {steps_text}
@@ -285,4 +272,4 @@ def main(alert_id):
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-     main(alert_id=1)
+     main(alert_id=7)
