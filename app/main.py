@@ -1,7 +1,7 @@
 # app/main.py
 from fastapi import FastAPI, HTTPException
 from .database import engine, Base, SessionLocal
-from .models import RawAlert, AnalyzedAlert
+from .models import RawAlert, AnalyzedAlert, Log
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session, class_mapper
 from app.workflow import main as run_analysis
@@ -24,6 +24,13 @@ def on_startup():
 def read_root():
     return {"message": "Hello from SOC_AI_AGENT backend!"}
 
+@app.get("/logs")
+def get_logs():
+    db = SessionLocal()
+    logs = db.query(Log).order_by(Log.timestamp.desc()).all()
+    db.close()
+    return [log.as_dict() for log in logs]
+            
 @app.get("/alerts")
 def get_alerts():
     db = SessionLocal()
@@ -66,5 +73,6 @@ def analyze_all_alerts():
 def as_dict(self):
     return {c.key: getattr(self, c.key) for c in class_mapper(self.__class__).columns}
 
+Log.as_dict = as_dict
 RawAlert.as_dict = as_dict
 AnalyzedAlert.as_dict = as_dict
