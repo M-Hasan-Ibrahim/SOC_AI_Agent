@@ -56,7 +56,7 @@ def enrich_alert_ip_virustotal(alert_id, ip_address):
     result = enrich_ip_with_virustotal(ip_address)
     enrichment = Enrichment(
         alert_id=alert_id,
-        enrichment_type='virustotal',
+        enrichment_type='virustotal_ip',
         indicator_type='ip',
         indicator_value=ip_address,
         enrichment_result=result
@@ -94,7 +94,7 @@ def enrich_alert_url_virustotal(alert_id, url_to_check):
     result = enrich_url_with_virustotal(url_to_check)
     enrichment = Enrichment(
         alert_id=alert_id,
-        enrichment_type='virustotal',
+        enrichment_type='virustotal_url',
         indicator_type='url',
         indicator_value=url_to_check,
         enrichment_result=result

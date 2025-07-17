@@ -64,13 +64,13 @@ def analyze_steps(llm, prompt):
     return cleaned
 
 def add_final_output(alert_id, ai_output):
-    
     try:
         ai_output = json.loads(ai_output)
     except json.JSONDecodeError as e:
         print("Error parsing LLM response as JSON:", e)
         print("LLM response was:", ai_output)
         return
+    
     db = SessionLocal()
     existing = db.query(AnalyzedAlert).filter_by(alert_id=alert_id).first()
     if existing:
@@ -89,12 +89,16 @@ def add_final_output(alert_id, ai_output):
     artifacts_and_iocs=ai_output["artifacts_and_iocs"],
     summary=ai_output["summary"]
     )
-    
-    
     db.add(db_alert)
+    
+    raw_alert = db.query(RawAlert).filter_by(id=alert_id).first()
+    if raw_alert:
+        raw_alert.analyzed = True
+    
+    
     db.commit()
     db.close()
-    print(f"Inserted analyzed alert for alert_id {alert_id}")
+    print(f"Inserted analyzed alert for alert_id {alert_id} and marked raw alert as analyzed")
 #------------------------------------------------------------------------------------------------------  
 
 def main(alert_id):
@@ -107,7 +111,7 @@ def main(alert_id):
     # )
     
     llm = ChatOpenAI(  
-        model="gpt-4.1",  
+        model="gpt-4o-mini",  
         api_key=os.environ["OPENAI_API_KEY"]  
     )  
 
