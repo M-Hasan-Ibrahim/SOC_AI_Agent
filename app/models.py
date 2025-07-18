@@ -22,6 +22,10 @@ class Log(Base):
     parent_process = Column(String, nullable=True)
     new_process = Column(String, nullable=True)
     creator_user = Column(String, nullable=True)
+    url = Column(String, nullable=True)
+    method = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+    http_response_status = Column(String, nullable=True)
 
 class RawAlert(Base):
     __tablename__ = "raw_alerts"
@@ -40,6 +44,10 @@ class RawAlert(Base):
     rules_triggered = Column(ARRAY(String), nullable=True)
     trigger_reason = Column(String, nullable=True)
     analyzed = Column(Boolean, default=False)
+    username = Column(String, nullable=True)
+    user_agent = Column(String, nullable=True)
+    http_request_method = Column(String, nullable=True)
+    request_url = Column(String, nullable=True)
 
 class Enrichment(Base):
     __tablename__ = "enrichments"
