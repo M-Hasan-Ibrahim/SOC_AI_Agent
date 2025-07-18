@@ -92,7 +92,7 @@ def main(alert_id):
     # )
     
     llm = ChatOpenAI(  
-        model="gpt-4o",  
+        model="gpt-4.1",  
         api_key=os.environ["OPENAI_API_KEY"]  
     )  
 
@@ -275,4 +275,4 @@ def main(alert_id):
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-     main(alert_id=10)
+     main(alert_id=7)
