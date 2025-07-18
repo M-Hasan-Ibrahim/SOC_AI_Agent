@@ -92,6 +92,7 @@
     "source_ip": "218.92.0.56",
     "destination_ip": "172.16.17.148",
     "destination_hostname": "Matthew",
+    "alert_type": "Brute Force RDP",
     "severity": "high",
     "rules_triggered": ["rdp_brute_force_detected"],
     "trigger_reason": "Login failure from a single source with different non existing accounts",

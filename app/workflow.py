@@ -92,7 +92,7 @@ def main(alert_id):
     # )
     
     llm = ChatOpenAI(  
-        model="gpt-4.1",  
+        model="gpt-4o",  
         api_key=os.environ["OPENAI_API_KEY"]  
     )  
 
@@ -241,6 +241,9 @@ def main(alert_id):
     
     logs = get_logs_for_alert_ips(alert_obj.source_ip, alert_obj.destination_ip)
     logs_text = format_logs_for_prompt(logs)
+    print("-----------------------------------------------------------------------------")
+    print(logs_text)
+    print("-----------------------------------------------------------------------------")
     
     human_prompt = f"""
     Here is the alert to analyze:
@@ -272,4 +275,4 @@ def main(alert_id):
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-     main(alert_id=7)
+     main(alert_id=10)

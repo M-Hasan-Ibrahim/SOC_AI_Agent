@@ -84,40 +84,149 @@
       }
     ]
   },
-  "Phishing": {
-    "description": "Workflow for phishing email or suspicious email link alerts.",
+  "SQL Injection": {
+    "description": "Workflow for investigating suspicious URLs that may indicate SQL injection attempts.",
     "steps": [
       {
         "step_number": 1,
-        "name": "Extract Email Indicators",
-        "action_type": "extract",
-        "inputs": ["alert data"],
-        "outputs": ["sender", "subject", "URLs", "attachments"],
-        "instructions": "List all suspicious elements in the email."
+        "name": "Check Source IP Address",
+        "action_type": "enrich",
+        "inputs": ["source IP"],
+        "outputs": ["IP classification", "threat reputation"],
+        "instructions": "Determine if the source IP is internal or external. Check its reputation using VirusTotal and AbuseIPDB."
       },
       {
         "step_number": 2,
-        "name": "Check URLs and Attachments",
-        "action_type": "enrich",
-        "inputs": ["URLs", "attachments"],
-        "outputs": ["reputation of links/attachments"],
-        "instructions": "Scan URLs and files in threat intelligence databases (such as VirusTotal or urlscan.io)."
+        "name": "Decode Suspicious URL",
+        "action_type": "investigate",
+        "inputs": ["alerted URL"],
+        "outputs": ["decoded payload"],
+        "instructions": "Decode the suspicious URL to check if it contains SQL injection payloads."
       },
       {
         "step_number": 3,
-        "name": "User Activity Check",
-        "action_type": "log_query",
-        "inputs": ["recipient account", "time window"],
-        "outputs": ["user actions (clicked links, opened attachments)"],
-        "instructions": "Check if the recipient interacted with the suspicious email content."
+        "name": "Review Source IP Activity",
+        "action_type": "investigate",
+        "inputs": ["web logs", "source IP"],
+        "outputs": ["list of accessed resources"],
+        "instructions": "Search web logs for other requests made by the same source IP. Document all URLs accessed."
       },
       {
         "step_number": 4,
-        "name": "Recommend Remediation",
-        "action_type": "recommendation",
-        "inputs": ["all prior step outputs"],
-        "outputs": ["incident severity", "recommended action"],
-        "instructions": "Advise on user notification, password reset, and blocking sender, depending on findings."
+        "name": "Decode Additional Requests",
+        "action_type": "investigate",
+        "inputs": ["list of URLs"],
+        "outputs": ["decoded payloads"],
+        "instructions": "Decode all similar requests from the same source IP to check for repeated SQL injection attempts."
+      },
+      {
+        "step_number": 5,
+        "name": "Check HTTP Responses",
+        "action_type": "investigate",
+        "inputs": ["HTTP response logs"],
+        "outputs": ["success/failure indicators"],
+        "instructions": "Review HTTP responses to determine if any of the requests were accepted or returned data, indicating a possible successful injection."
+      },
+      {
+        "step_number": 6,
+        "name": "Determine Scope of Injection Attempts",
+        "action_type": "investigate",
+        "inputs": ["web logs", "source IP"],
+        "outputs": ["list of targeted hosts"],
+        "instructions": "Check if the attacker IP tried SQL injection on multiple endpoints or hosts."
+      },
+      {
+        "step_number": 7,
+        "name": "Contain Affected System",
+        "action_type": "contain",
+        "inputs": ["compromised system or vulnerable app"],
+        "outputs": ["system isolated"],
+        "instructions": "Isolate the affected application or system if compromise is suspected or confirmed."
+      },
+      {
+        "step_number": 8,
+        "name": "Report and Document IOCs",
+        "action_type": "report",
+        "inputs": ["investigation findings"],
+        "outputs": ["incident report", "list of IOCs"],
+        "instructions": "Document source IPs, targeted URLs, decoded payloads, success indicators, and attack timeline. Share report and IOCs with stakeholders."
+      },
+      {
+        "step_number": 9,
+        "name": "Classify and Assess",
+        "action_type": "classify",
+        "inputs": ["all findings"],
+        "outputs": ["incident classification", "MITRE techniques", "severity"],
+        "instructions": "Classify the alert as True or False Positive. Document attack type (e.g., SQLi), relevant MITRE ATT&CK techniques (e.g., T1190), and assign a severity."
+      },
+      {
+        "step_number": 10,
+        "name": "Recommendations and Lessons Learned",
+        "action_type": "remediate",
+        "inputs": ["incident report"],
+        "outputs": ["remediation recommendations"],
+        "instructions": "Recommend input validation, WAF deployment, and parameterized queries. Document lessons learned and update detection and prevention controls."
+      }
+    ]
+  },
+  "Suspicious URL": {
+    "description": "Workflow for investigating alerts related to suspicious URLs, potentially linked to phishing, malware, or C2 activity.",
+    "steps": [
+      {
+        "step_number": 1,
+        "name": "Check Destination IP",
+        "action_type": "enrich",
+        "inputs": ["destination IP"],
+        "outputs": ["IP classification", "threat reputation"],
+        "instructions": "Determine if the destination IP is internal or external. Check the IP against threat intelligence sources (e.g., VirusTotal, AbuseIPDB)."
+      },
+      {
+        "step_number": 2,
+        "name": "Check URL Reputation",
+        "action_type": "enrich",
+        "inputs": ["suspicious URL"],
+        "outputs": ["URL reputation"],
+        "instructions": "Submit the suspicious URL to VirusTotal or similar platforms to check for known malicious content."
+      },
+      {
+        "step_number": 3,
+        "name": "Manual Analysis Suggestion",
+        "action_type": "note",
+        "inputs": ["suspicious URL"],
+        "outputs": ["manual analysis flag"],
+        "instructions": "Recommend opening the URL in AnyRun or a sandbox for further manual analysis. This step is meant for a human analyst and should not be automated."
+      },
+      {
+        "step_number": 4,
+        "name": "Contain Affected System",
+        "action_type": "contain",
+        "inputs": ["compromised system (if identified)"],
+        "outputs": ["system isolated"],
+        "instructions": "If the suspicious URL led to system compromise or malware download, isolate the affected system from the network."
+      },
+      {
+        "step_number": 5,
+        "name": "Report and Document IOCs",
+        "action_type": "report",
+        "inputs": ["investigation findings"],
+        "outputs": ["incident report", "list of IOCs"],
+        "instructions": "Document destination IPs, URLs, payloads, and timeline. Record IOCs and share with stakeholders or threat intel teams."
+      },
+      {
+        "step_number": 6,
+        "name": "Classify and Assess",
+        "action_type": "classify",
+        "inputs": ["all findings"],
+        "outputs": ["incident classification", "MITRE techniques", "severity"],
+        "instructions": "Classify the alert as True or False Positive. Document attack type (e.g., phishing, malware delivery), map to MITRE ATT&CK (e.g., T1566, T1204), and assign severity."
+      },
+      {
+        "step_number": 7,
+        "name": "Recommendations and Lessons Learned",
+        "action_type": "remediate",
+        "inputs": ["incident report"],
+        "outputs": ["remediation recommendations"],
+        "instructions": "Recommend web filtering, email scanning, user awareness training, and WAF updates. Document any process improvements and update detection logic."
       }
     ]
   }
