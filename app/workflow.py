@@ -275,4 +275,5 @@ def main(alert_id):
     print("Response Took: ", end-start, " sec")
 
 if __name__ == "__main__":
-     main(alert_id=7)
+    #main(alert_id=7)
+    print("Please call main(alert_id) to use the program")
