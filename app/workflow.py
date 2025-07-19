@@ -241,9 +241,9 @@ def main(alert_id):
     
     logs = get_logs_for_alert_ips(alert_obj.source_ip, alert_obj.destination_ip)
     logs_text = format_logs_for_prompt(logs)
-    print("-----------------------------------------------------------------------------")
-    print(logs_text)
-    print("-----------------------------------------------------------------------------")
+    #print("-----------------------------------------------------------------------------")
+    #print(logs_text)
+    #print("-----------------------------------------------------------------------------")
     
     human_prompt = f"""
     Here is the alert to analyze:
