@@ -7,11 +7,14 @@ ollama_base_url = "http://host.docker.internal:11434"
         model="deepseek-r1:8b",        
         base_url=ollama_base_url,        
     )  
+comment out cleaning of openai  
+  
 openai:    
 llm = ChatOpenAI(  
     model="gpt-4o-mini",  
     api_key=os.environ["OPENAI_API_KEY"]  
 )  
+comment out cleaning of deepseek  
 
 
 1- Create a .env file in the root directory beside Dockerfile with this content inside:  
@@ -37,6 +40,6 @@ then go to Databses -> POSGRES_DB_NAME -> Schemas -> public -> Tables -> right c
   
     
 4- To seed the database with test alerts run in a new terminal:  
-docker compose exec api python -m app.fill_database
-
+docker compose exec api python -m app.initialize_databse.fill_alerts  
+docker compose exec api python -m app.initialize_databse.fill_logs
 
